@@ -28,7 +28,7 @@ function App() {
       console.log(error.message)
     }}
 
-  async function registerDomain(domainName) {
+  const registerDomain = async (domainName) => {
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
@@ -47,7 +47,7 @@ function App() {
   };
 
 
-  async function setPrimaryDomain(primaryName) {
+  const setPrimaryDomain = async (primaryName) => {
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
@@ -61,7 +61,7 @@ function App() {
     }
   }
 
-  async function handleSetPrimaryDomain(event) {
+  const handleSetPrimaryDomain = async (event) => {
     event.preventDefault();
     await setPrimaryDomain(primaryName);
     setPubName(primaryName)
