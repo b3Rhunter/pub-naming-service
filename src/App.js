@@ -71,39 +71,45 @@ function App() {
     <div className="App">
       <header className="App-header">
 
-      <button onClick={connect}>connect</button>
+      <h1>Pub Namine Service</h1>
+      
       {connected && (
+        <>
         <p>welcome back...{pubName}</p>
-      )}
-      {!connected && (
-        <p>register and set a primary .pub domain</p>
-      )}
+        
+          <div>
+          <form onSubmit={handleRegisterDomain}>
+            <input
+              type="text"
+              placeholder="domain name"
+              value={domainName}
+              onChange={(event) => setDomainName(event.target.value)} />
+            <br/>
+            <button className="registerButtons" type="submit">Register domain</button>
+          </form>
+          </div>
 
-      <form onSubmit={handleRegisterDomain}>
-        <input
-          type="text"
-          placeholder="domain name"
-          value={domainName}
-          onChange={(event) => setDomainName(event.target.value)}
-        />
-        &nbsp;
-        <button type="submit">Register domain</button>
-      </form>
+          <br/>
 
-
-      <div>
-        <form onSubmit={handleSetPrimaryDomain}>
-          <input
-            type="text"
-            placeholder="me.pub"
-            value={primaryName}
-            onChange={(event) => setPrimary(event.target.value)}
-          />
-        &nbsp;
-        <button type="submit">Set primary domain</button>
+          <div>
+            <form onSubmit={handleSetPrimaryDomain}>
+              <input
+                type="text"
+                placeholder="me.pub"
+                value={primaryName}
+                onChange={(event) => setPrimary(event.target.value)}
+              />
+           <br/>
+          <button className="registerButtons" type="submit">Set primary domain</button>
         </form>
       </div>
+      <p>register and set a primary .pub domain</p>
+          </>
+      )}
 
+      {!connected && (
+        <button className="connect" onClick={connect}>connect</button>
+      )}
 
       </header>
     </div>

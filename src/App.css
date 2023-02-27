@@ -12,3 +12,31 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+
+.connect {
+  font-family: monospace;
+  font-size: 2vw;
+  padding: 7px 14px;
+  background-color: rgba(0,0,0,0);
+  border: 1px solid #fff;
+  border-radius: 7px;
+  color: #fff;
+}
+
+.registerButtons {
+  font-family: monospace;
+  font-size: 1.2vw;
+  padding: 7px 14px;
+  background-color: rgba(0,0,0,0);
+  border: 1px solid #fff;
+  border-radius: 7px;
+  color: #fff;
+  margin: 24px;
+}
+
+input {
+  background-color: rgba(0,0,0,0);
+  color: #fff;
+  text-align: center;
+  padding: 7px 14px;
+}
