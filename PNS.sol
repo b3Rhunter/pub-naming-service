@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import './Base64.sol';
 
 contract PNS is ERC721, Ownable {
@@ -17,18 +18,23 @@ contract PNS is ERC721, Ownable {
 
     using Strings for uint256;
 
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+
     constructor() ERC721("Pub Naming Service", "PUB") {}
 
-    function registerDomain(string memory domain) public {
-       string memory domainWithPub = string(abi.encodePacked(domain, ".pub"));
-       require(_isDomainAvailable(domainWithPub), "Domain taken!");
-       uint256 tokenId = _tokenIdOf(domainWithPub);
-       _mint(msg.sender, tokenId);
-      _domainOwners[domainWithPub] = msg.sender;
-       _ownedDomains[msg.sender].push(domainWithPub);
-      tokenIdToDomain[tokenId] = bytes(domainWithPub);
-       emit DomainRegistered(domainWithPub, msg.sender);
+function registerDomain(string memory domain) public {
+   string memory domainWithPub = string(abi.encodePacked(domain, ".pub"));
+   require(_isDomainAvailable(domainWithPub), "Domain taken!");
+   uint256 tokenId = _tokenIdOf(domainWithPub);
+   _mint(msg.sender, tokenId);
+   _domainOwners[domainWithPub] = msg.sender;
+   _ownedDomains[msg.sender].push(domainWithPub);
+   emit DomainRegistered(domainWithPub, msg.sender);
+   setPrimaryDomain(domainWithPub);
 }
+
 
     function transferDomain(string memory domain, address newOwner) public {
         require(_isApprovedOrOwner(_msgSender(), _tokenIdOf(domain)), "No PNS for you!");
@@ -66,14 +72,14 @@ function randomNum(uint256 _mod, uint256 _seed, uint _salt) public view returns(
 
 function generateRandomColor1() internal view returns (string memory) {
     uint256 randomNum1 = randomNum(360, 3, 3);
-    string memory color = string(abi.encodePacked("hsl(", Strings.toString(randomNum1), ", 50%, 85%)"));
+    string memory color = string(abi.encodePacked("hsl(", Strings.toString(randomNum1), ", 40%, 25%)"));
     return color;
 }
 
 
 function generateRandomColor2() internal view returns (string memory) {
-    uint256 randomNum2 = randomNum(360, 3, 9);
-    string memory color = string(abi.encodePacked("hsl(", Strings.toString(randomNum2), ", 50%, 15%)"));
+    uint256 randomNum2 = randomNum(360, 3, 3);
+    string memory color = string(abi.encodePacked("hsl(", Strings.toString(randomNum2), ", 40%, 75%)"));
     return color;
 }
 
@@ -101,8 +107,8 @@ function renderTokenById(string memory domain) internal view returns (string mem
     string memory color1 = generateRandomColor1();
     string memory color2 = generateRandomColor2();
     string memory render = string(abi.encodePacked(
-        '<rect fill="', color1, '" x="0" y="104.52146" width="512" height="512"/>',
-        '<text transform="matrix(1 0 0 1 0 0)" xml:space="preserve" text-anchor="start" font-family="monospace" font-size="48" id="svg_1" y="270.99999" x="208.96801" fill="',color2,'">',domain,'</text>'
+        '<rect fill="', color1, '" x="0" y="0" width="512" height="512"/>',
+        '<text x="50%" y="50%" dominant-baseline="middle" fill="', color2,'" text-anchor="middle" font-size="41">',domain,'</text>'
     ));
     return render;
 }
@@ -124,11 +130,16 @@ function renderTokenById(string memory domain) internal view returns (string mem
         return _domainOwners[domain] == address(0);
     }
 
-    function _tokenIdOf(string memory domain) private pure returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(domain)));
-    }
+function _tokenIdOf(string memory domain) private returns (uint256) {
+    uint256 tokenId = _tokenIds.current() + 1;
+    _tokenIds.increment();
+    tokenIdToDomain[tokenId] = bytes(domain);
+    return tokenId;
+}
 
-    function getTokenId(string memory domain) public pure returns (uint256) {
+
+
+    function getTokenId(string memory domain) public returns (uint256) {
         return _tokenIdOf(domain);
     }
 }
