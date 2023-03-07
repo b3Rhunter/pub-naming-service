@@ -59,57 +59,54 @@ contract PNS is ERC721, Ownable {
         primaryDomain[msg.sender] = domain;
     }
 
- 
- 
- 
-    function randomNum(uint256 _mod, uint256 _seed, uint _salt) public view returns(uint256) {
+function randomNum(uint256 _mod, uint256 _seed, uint _salt) public view returns(uint256) {
       uint256 num = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, _seed, _salt))) % _mod;
       return num;
   }
 
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
-      require(_exists(tokenId), "not exist");
-      string memory image = Base64.encode(bytes(generateSVGofTokenById(tokenId)));
+function generateRandomColor1() internal view returns (string memory) {
+    uint256 randomNum1 = randomNum(360, 3, 3);
+    string memory color = string(abi.encodePacked("hsl(", Strings.toString(randomNum1), ", 50%, 85%)"));
+    return color;
+}
 
-      return
-          string(
-              abi.encodePacked(
-                'data:application/json;base64,',
-                Base64.encode(
-                    bytes(
-                          abi.encodePacked(
-                              '", "image": "',
-                              'data:image/svg+xml;base64,',
-                              image,
-                              '"}'
-                          )
-                        )
-                    )
-              )
-          );
-  }
+
+function generateRandomColor2() internal view returns (string memory) {
+    uint256 randomNum2 = randomNum(360, 3, 9);
+    string memory color = string(abi.encodePacked("hsl(", Strings.toString(randomNum2), ", 50%, 15%)"));
+    return color;
+}
+
+function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    require(_exists(tokenId), "Token does not exist");
+    string memory name = string(abi.encodePacked("PNS #", tokenId.toString()));
+    string memory description = "Pub Naming Service";
+    string memory svg = generateSVGofTokenById(tokenId);
+    string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "', name, '", "description": "', description, '", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '"}'))));
+    return string(abi.encodePacked("data:application/json;base64,", json));
+}
+
 
 function generateSVGofTokenById(uint256 tokenId) internal view returns (string memory) {
-    string memory domainWithPub = string(tokenIdToDomain[tokenId]);
+    string memory domain = string(tokenIdToDomain[tokenId]);
     string memory svg = string(abi.encodePacked(
-      '<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">',
-        renderTokenById(domainWithPub),
+      '<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">',
+        renderTokenById(domain),
       '</svg>'
     ));
-
     return svg;
-  }
+}
 
-  function renderTokenById(string memory domainWithPub) public view returns (string memory) {
+function renderTokenById(string memory domain) internal view returns (string memory) {
+    string memory color1 = generateRandomColor1();
+    string memory color2 = generateRandomColor2();
     string memory render = string(abi.encodePacked(
-      '<g id="text">',
-        '<rect id="svg_1" height="543.99454" width="543.99454" y="-15.99728" x="-15.99728" stroke="#000" fill="hsl(',randomNum(361,3,3).toString(),',90%,25%)"/>',
-        '<text style="width: 80%" x="50%" y="50%" dominant-baseline="middle" fill="hsl(',randomNum(361,3,3).toString(),',90%,75%)" text-anchor="middle" font-size="3.5vw">',domainWithPub,'</text>',
-       '</g>'
-      ));
-
+        '<rect fill="', color1, '" x="0" y="104.52146" width="512" height="512"/>',
+        '<text transform="matrix(1 0 0 1 0 0)" xml:space="preserve" text-anchor="start" font-family="monospace" font-size="48" id="svg_1" y="270.99999" x="208.96801" fill="',color2,'">',domain,'</text>'
+    ));
     return render;
-  }
+}
+
 
     function getPrimaryDomain(address addr) public view returns (string memory) {
         return primaryDomain[addr];
